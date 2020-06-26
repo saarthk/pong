@@ -1,6 +1,8 @@
-push = require 'push'
 TLfres = require 'tlfres'
 
+-- windows resizes the display to 150% of the original
+-- so the maximum possible resolution without overflow
+-- can be 1280x720, instead of 1920x1080
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
 
@@ -14,11 +16,6 @@ function love.load()
     smallFont = love.graphics.newFont('font.ttf', 8)
 
     love.graphics.setFont(smallFont)
-    -- push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
-    --     fullscreen = false,
-    --     resizable = false,
-    --     vsync = true
-    -- })
 end
 
 function love.keypressed(key)
@@ -28,7 +25,6 @@ function love.keypressed(key)
 end
 
 function love.draw()
-    -- push:apply('start')
     TLfres.beginRendering(VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
     -- LÖVE 11.0 uses decimal values between 0-1
     -- as opposed to LÖVE 10.2 which uses 0-255
@@ -46,6 +42,5 @@ function love.draw()
     -- ball
     love.graphics.rectangle('fill', VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
 
-    -- push:apply('end')
     TLfres.endRendering()
 end
