@@ -6,8 +6,8 @@ require 'Ball'
 -- windows resizes the display to 150% of the original
 -- so the maximum possible resolution without overflow
 -- can be 1280x720, instead of 1920x1080
-WINDOW_WIDTH = 1280
-WINDOW_HEIGHT = 720
+WINDOW_WIDTH = 864
+WINDOW_HEIGHT = 486
 
 VIRTUAL_WIDTH = 432
 VIRTUAL_HEIGHT = 243
@@ -21,7 +21,8 @@ BALL_SPEED_Y = 50
 
 function love.load()
     love.window.setMode(WINDOW_WIDTH, WINDOW_HEIGHT)
-
+    -- set game title to "Pong!"
+    love.window.setTitle("Pong!")
     -- seed the RNG with current time (in seconds)
     math.randomseed(os.time())
 
@@ -35,7 +36,7 @@ function love.load()
     player1Score = 0
     player2Score = 0
 
-    player1 = Paddle:init(10, 30, 5, 20)
+    player1 = Paddle:init(5, 30, 5, 20)
     player2 = Paddle:init(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 30, 5, 20)
 
     ball = Ball:init(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
@@ -103,6 +104,9 @@ function love.draw()
         love.graphics.printf('Hello Play State!', smallFont, 0, 10, VIRTUAL_WIDTH, 'center')
     end
 
+    -- love.graphics.line(VIRTUAL_WIDTH / 2, 0, VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT)
+    -- love.graphics.circle('fill', VIRTUAL_WIDTH / 2 + 6, VIRTUAL_HEIGHT / 2 + 6, 3)
+
     player1:render()
     player2:render()
 
@@ -117,6 +121,15 @@ function love.draw()
         tostring(player2Score),
         VIRTUAL_WIDTH / 2 + 30,
         VIRTUAL_HEIGHT / 10)
+
+    -- set font properties
+    love.graphics.setFont(smallFont)
+    love.graphics.setColor(0, 1, 0, 1)
+    -- print current FPS
+    love.graphics.print(
+        "FPS: " .. tostring(love.timer.getFPS()),
+        10, 10
+        )
 
     TLfres.endRendering()
 end
