@@ -88,6 +88,22 @@ function love.update(dt)
         end
     end
     
+
+    if ball.x < 0 then
+        servingPlayer = 1
+        player2Score = player2Score + 1
+        ball:reset()
+        gameState = 'start'
+    end
+
+    if ball.x > VIRTUAL_WIDTH then
+        servingPlayer = 2
+        player1Score = player1Score + 1
+        ball:reset()
+        gameState = 'start'
+    end
+
+
     -- player 1 movement
     -- we impart a certain speed to the ball during the update
     -- which determines its new position, under the hood
@@ -125,7 +141,6 @@ function love.keypressed(key)
             gameState = 'play'
         else
             gameState = 'start'
-
             ball:reset()
         end
     end
