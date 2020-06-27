@@ -6,8 +6,8 @@ require 'Ball'
 -- windows resizes the display to 150% of the original
 -- so the maximum possible resolution without overflow
 -- can be 1280x720, instead of 1920x1080
-WINDOW_WIDTH = 864
-WINDOW_HEIGHT = 486
+WINDOW_WIDTH = 1280
+WINDOW_HEIGHT = 720
 
 VIRTUAL_WIDTH = 432
 VIRTUAL_HEIGHT = 243
@@ -15,9 +15,7 @@ VIRTUAL_HEIGHT = 243
 -- movement speed of paddle
 -- multiplied by dt during update
 -- to match frame rates across systems
-PADDLE_SPEED = 200
-BALL_SPEED_X = 100
-BALL_SPEED_Y = 50
+PADDLE_SPEED = 400
 
 function love.load()
     love.window.setMode(WINDOW_WIDTH, WINDOW_HEIGHT)
@@ -36,8 +34,8 @@ function love.load()
     player1Score = 0
     player2Score = 0
 
-    player1 = Paddle:init(5, 30, 5, 20)
-    player2 = Paddle:init(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 30, 5, 20)
+    player1 = Paddle:init(5, 30, 5, 50)
+    player2 = Paddle:init(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 30, 5, 50)
 
     ball = Ball:init(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
 
@@ -48,6 +46,48 @@ function love.load()
 end
 
 function love.update(dt)
+    if gameState == 'play' then
+        -- if ball collides with paddle 1
+        if ball:collide(player1) then
+            -- ball is placed at the periphery of the paddle
+            ball.x = player1.x + 5
+            -- x component of the velocity is reversed
+            -- and the ball is accelerated in x
+            ball.dx = -ball.dx * 1.20
+
+            -- direction of the y component of velocity is maintained
+            -- but the magnitude is changed at random
+            if ball.dy < 0 then
+                ball.dy = -math.random(10, 150)
+            else
+                ball.dy = math.random(10, 150)
+            end
+        end
+
+        -- same as player 1's collision detection
+        if ball:collide(player2) then
+            ball.x = player2.x - 4
+            ball.dx = -ball.dx * 1.10
+            if ball.dy < 0 then
+                ball.dy = -math.random(10, 150)
+            else
+                ball.dy = math.random(10, 150)
+            end
+        end
+
+        -- collision detection along the ceiling and floor
+        -- using simple math :P
+        if ball.y <= 0 then
+            ball.y = 0
+            ball.dy = -ball.dy
+        end
+
+        if ball.y >= VIRTUAL_HEIGHT - 4 then
+            ball.y = VIRTUAL_HEIGHT - 4
+            ball.dy = -ball.dy
+        end
+    end
+    
     -- player 1 movement
     -- we impart a certain speed to the ball during the update
     -- which determines its new position, under the hood
@@ -99,12 +139,12 @@ function love.draw()
     love.graphics.setColor(1, 1, 1)
 
     if gameState == 'start' then
-        love.graphics.printf('Hello Start State!', smallFont, 0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('START', smallFont, 10, 20, VIRTUAL_WIDTH - 10, 'left')
     else
-        love.graphics.printf('Hello Play State!', smallFont, 0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('PLAY', smallFont, 10, 20, VIRTUAL_WIDTH - 10, 'left')
     end
 
-    -- love.graphics.line(VIRTUAL_WIDTH / 2, 0, VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT)
+    love.graphics.line(VIRTUAL_WIDTH / 2, 0, VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT)
     -- love.graphics.circle('fill', VIRTUAL_WIDTH / 2 + 6, VIRTUAL_HEIGHT / 2 + 6, 3)
 
     player1:render()
