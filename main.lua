@@ -1,5 +1,8 @@
 TLfres = require 'tlfres'
 
+require 'Paddle'
+require 'Ball'
+
 -- windows resizes the display to 150% of the original
 -- so the maximum possible resolution without overflow
 -- can be 1280x720, instead of 1920x1080
@@ -13,6 +16,8 @@ VIRTUAL_HEIGHT = 243
 -- multiplied by dt during update
 -- to match frame rates across systems
 PADDLE_SPEED = 200
+BALL_SPEED_X = 100
+BALL_SPEED_Y = 50
 
 function love.load()
     love.window.setMode(WINDOW_WIDTH, WINDOW_HEIGHT)
@@ -30,17 +35,10 @@ function love.load()
     player1Score = 0
     player2Score = 0
 
-    -- initial paddle positions (along Y-axis)
-    player1Y = 30
-    player2Y = VIRTUAL_HEIGHT - 50
+    player1 = Paddle:init(10, 30, 5, 20)
+    player2 = Paddle:init(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 30, 5, 20)
 
-    -- velocity and position variables
-    ballX = VIRTUAL_WIDTH / 2 - 2
-    ballY = VIRTUAL_HEIGHT / 2 - 2
-
-    -- initialize the ball with random velocity components
-    ballDX = math.random(2) == 1 and 100 or -100
-    ballDY = math.random(-50, 50)
+    ball = Ball:init(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
 
     -- game state variable used to transition between different parts of the game
     -- (used for beginning, menus, main game, high score list, etc.)
@@ -50,26 +48,32 @@ end
 
 function love.update(dt)
     -- player 1 movement
+    -- we impart a certain speed to the ball during the update
+    -- which determines its new position, under the hood
+
     if love.keyboard.isDown('w') then
-        player1Y = math.max(0, player1Y + -PADDLE_SPEED * dt)
+        player1.dy = -PADDLE_SPEED
     elseif love.keyboard.isDown('s') then
-        player1Y = math.min(VIRTUAL_HEIGHT - 20, player1Y + PADDLE_SPEED * dt)
+        player1.dy = PADDLE_SPEED
+    else
+        player1.dy = 0
     end
 
     -- player 2 movement
     if love.keyboard.isDown('up') then
-        player2Y = math.max(0, player2Y + -PADDLE_SPEED * dt)
+        player2.dy = -PADDLE_SPEED
     elseif love.keyboard.isDown('down') then
-        player2Y = math.min(VIRTUAL_HEIGHT - 20, player2Y + PADDLE_SPEED * dt)
+        player2.dy = PADDLE_SPEED
+    else
+        player2.dy = 0
     end
 
-    -- update ball position as per the velocity components
-    -- only if in the play state
-    -- scale the velocity by dt so movement is framerate-independent
     if gameState == 'play' then
-        ballX = ballX + ballDX * dt
-        ballY = ballY + ballDY * dt
+        ball:update(dt)
     end
+
+    player1:update(dt)
+    player2:update(dt)
 end
 
 function love.keypressed(key)
@@ -81,11 +85,7 @@ function love.keypressed(key)
         else
             gameState = 'start'
 
-            ballX = VIRTUAL_WIDTH / 2 - 2
-            ballY = VIRTUAL_HEIGHT / 2 - 2
-
-            ballDX = math.random(1) == 2 and 100 or -100
-            ballDY = math.random(-50, 50) * 1.5
+            ball:reset()
         end
     end
 end
@@ -100,9 +100,13 @@ function love.draw()
     if gameState == 'start' then
         love.graphics.printf('Hello Start State!', smallFont, 0, 10, VIRTUAL_WIDTH, 'center')
     else
-        love.graphics.printf('Hello Play State', smallFont, 0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.printf('Hello Play State!', smallFont, 0, 10, VIRTUAL_WIDTH, 'center')
     end
 
+    player1:render()
+    player2:render()
+
+    ball:render()
     -- draw scores on the screen
     love.graphics.setFont(scoreFont)
     love.graphics.print(
@@ -113,15 +117,6 @@ function love.draw()
         tostring(player2Score),
         VIRTUAL_WIDTH / 2 + 30,
         VIRTUAL_HEIGHT / 10)
-
-    -- x & y coordinates of the rectangle correspond to 
-    -- the TOP-LEFT point rather than the center
-    -- left paddle
-    love.graphics.rectangle('fill', 10, player1Y, 5, 20)
-    -- right paddle
-    love.graphics.rectangle('fill', VIRTUAL_WIDTH - 10, player2Y, 5, 20)
-    -- ball
-    love.graphics.rectangle('fill', ballX, ballY, 4, 4)
 
     TLfres.endRendering()
 end
