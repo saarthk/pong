@@ -1,4 +1,4 @@
-TLfres = require 'tlfres'
+push = require 'push'
 
 require 'Paddle'
 require 'Ball'
@@ -18,7 +18,6 @@ VIRTUAL_HEIGHT = 243
 PADDLE_SPEED = 400
 
 function love.load()
-    love.window.setMode(WINDOW_WIDTH, WINDOW_HEIGHT)
     -- set game title to "Pong!"
     love.window.setTitle("Pong!")
     -- seed the RNG with current time (in seconds)
@@ -33,6 +32,11 @@ function love.load()
         ['win'] = love.audio.newSource('sounds/win.wav', 'static'),
     }
 
+    push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
+        fullscreen = false,
+        resizable = false,
+        vsync = true,
+    })
     -- default font
     smallFont = love.graphics.newFont('font.ttf', 8)
     -- font for displaying winning message
@@ -205,11 +209,10 @@ function love.keypressed(key)
 end
 
 function love.draw()
-    TLfres.beginRendering(VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
+    push:apply('start')
     -- LÖVE 11.0 uses decimal values between 0-1
     -- as opposed to LÖVE 10.2 which uses 0-255
     love.graphics.clear(40/255, 45/255, 52/255, 255/255)
-    love.graphics.setColor(1, 1, 1)
 
     displayScore()
 
@@ -279,7 +282,7 @@ function love.draw()
         10, 10
         )
 
-    TLfres.endRendering()
+    push:apply('end')
 end
 
 function displayScore()
