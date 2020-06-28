@@ -26,6 +26,13 @@ function love.load()
 
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
+    -- sound files
+    sounds = {
+        ['hit'] = love.audio.newSource('sounds/hit.wav', 'static'),
+        ['score'] = love.audio.newSource('sounds/score.wav', 'static'),
+        ['win'] = love.audio.newSource('sounds/win.wav', 'static'),
+    }
+
     -- default font
     smallFont = love.graphics.newFont('font.ttf', 8)
     -- font for displaying winning message
@@ -68,7 +75,7 @@ function love.update(dt)
             ball.x = player1.x + 5
             -- x component of the velocity is reversed
             -- and the ball is accelerated in x
-            ball.dx = -ball.dx * 10.5
+            ball.dx = -ball.dx * 1.05
 
             -- direction of the y component of velocity is maintained
             -- but the magnitude is changed at random
@@ -77,17 +84,21 @@ function love.update(dt)
             else
                 ball.dy = math.random(10, 150)
             end
+
+            sounds['hit']:play()
         end
 
         -- same as player 1's collision detection
         if ball:collide(player2) then
             ball.x = player2.x - 4
-            ball.dx = -ball.dx * 10.5
+            ball.dx = -ball.dx * 1.05
             if ball.dy < 0 then
                 ball.dy = -math.random(10, 150)
             else
                 ball.dy = math.random(10, 150)
             end
+
+            sounds['hit']:play()
         end
 
 
@@ -96,10 +107,12 @@ function love.update(dt)
         if ball.y <= 0 then
             ball.y = 0
             ball.dy = -ball.dy
+            sounds['hit']:play()
 
         elseif ball.y >= VIRTUAL_HEIGHT - 4 then
             ball.y = VIRTUAL_HEIGHT - 4
             ball.dy = -ball.dy
+            sounds['hit']:play()
         end    
 
         if ball.x < 0 then
@@ -109,7 +122,9 @@ function love.update(dt)
             if player2Score == 10 then
                 winningPlayer = 2
                 gameState = 'end'
+                sounds['win']:play()
             else
+                sounds['score']:play()
                 gameState = 'serve'
                 ball:reset()
             end
@@ -121,7 +136,9 @@ function love.update(dt)
             if player1Score == 10 then
                 winningPlayer = 1
                 gameState = 'end'
+                sounds['win']:play()
             else
+                sounds['score']:play()
                 gameState = 'serve'
                 ball:reset()
             end
