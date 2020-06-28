@@ -34,8 +34,8 @@ function love.load()
 
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, {
         fullscreen = false,
-        resizable = false,
-        vsync = true,
+        resizable = true,
+        vsync = false,
     })
     -- default font
     smallFont = love.graphics.newFont('font.ttf', 8)
@@ -49,7 +49,7 @@ function love.load()
     player2Score = 0
 
     -- represents the player serving the ball
-    servingPlayer =1
+    servingPlayer = 1
 
     -- instantiate players
     player1 = Paddle:init(5, 30, 5, 50)
@@ -61,6 +61,10 @@ function love.load()
     -- (used for beginning, menus, main game, high score list, etc.)
     -- we will use this to determine behavior during render and update
     gameState = 'start'
+end
+
+function love.resize(w, h)
+    push:resize(w, h)
 end
 
 function love.update(dt)
